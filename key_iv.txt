@@ -1,0 +1,17 @@
+-des
+-des-ecb
+-des-cbc
+-des-cfb
+-des-ofb
+
+-K 0123456789abcd (56 bit)
+-iv 0102030405060708 (64 bit)
+
+-aes
+-aes-ecb
+-aes-cbc
+-aes-cfb
+-aes-ofb
+
+-K 00112233445566778899aabbccddeeff (128 bit)
+-iv 010203040506070809000a0b0c0d0e0f (128 bit)

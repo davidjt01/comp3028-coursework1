@@ -1,0 +1,82 @@
+[
+  {
+    "rank": "1",
+    "trigram": "the",
+    "frequency_percent": "1.81%"
+  },
+  {
+    "rank": "2",
+    "trigram": "and",
+    "frequency_percent": "0.73%"
+  },
+  {
+    "rank": "3",
+    "trigram": "tha",
+    "frequency_percent": "0.33%"
+  },
+  {
+    "rank": "4",
+    "trigram": "ent",
+    "frequency_percent": "0.42%"
+  },
+  {
+    "rank": "5",
+    "trigram": "ing",
+    "frequency_percent": "0.72%"
+  },
+  {
+    "rank": "6",
+    "trigram": "ion",
+    "frequency_percent": "0.42%"
+  },
+  {
+    "rank": "7",
+    "trigram": "tio",
+    "frequency_percent": "0.31%"
+  },
+  {
+    "rank": "8",
+    "trigram": "for",
+    "frequency_percent": "0.34%"
+  },
+  {
+    "rank": "9",
+    "trigram": "nde",
+    "frequency_percent": ""
+  },
+  {
+    "rank": "10",
+    "trigram": "has",
+    "frequency_percent": ""
+  },
+  {
+    "rank": "11",
+    "trigram": "nce",
+    "frequency_percent": ""
+  },
+  {
+    "rank": "12",
+    "trigram": "edt",
+    "frequency_percent": ""
+  },
+  {
+    "rank": "13",
+    "trigram": "tis",
+    "frequency_percent": ""
+  },
+  {
+    "rank": "14",
+    "trigram": "oft",
+    "frequency_percent": "0.22%"
+  },
+  {
+    "rank": "15",
+    "trigram": "sth",
+    "frequency_percent": "0.21%"
+  },
+  {
+    "rank": "16",
+    "trigram": "men",
+    "frequency_percent": ""
+  }
+]

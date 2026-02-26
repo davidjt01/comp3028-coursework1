@@ -1,0 +1,28 @@
+the enigma machine was invented by the german engineer arthur scherbius at the
+end of world war i [] this was not known until when a paper by karl de
+leeuw was found that described in detail arthur scherbius changes [] the
+german firm scherbius ritter co founded by arthur scherbius patented ideas
+for a cipher machine in and began marketing the finished product under
+the brand name enigma in initially targeted at commercial markets []
+early models were used commercially from the early s and adopted by
+military and government services of several countries most notably nazi
+germany before and during world war ii
+
+several different enigma models were produced but the german military models
+having a plugboard were the most complex japanese and italian models were
+also in use with its adoption in slightly modified form by the german navy
+in and the german army and air force soon after the name enigma became
+widely known in military circles pre war german military planning emphasized
+fast mobile forces and tactics later known as blitzkrieg which depend on
+radio communication for command and coordination since adversaries would
+likely intercept radio signals messages would have to be protected with
+secure encoding compact and easily portable the enigma machine filled that
+need
+
+like other rotor machines the enigma machine is a combination of mechanical
+and electrical subsystems the mechanical subsystem consists of a keyboard a
+set of rotating disks called rotors arranged adjacently along a spindle one
+of various stepping components to turn at least one rotor with each key press
+and a series of lamps one for each letter these design features are the
+reason that the enigma machine was originally referred to as the rotor based
+cipher machine during its intellectual inception in

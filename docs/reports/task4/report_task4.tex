@@ -1,0 +1,184 @@
+% Task 4: Block Cipher Modes and Padding (content only; included by report_coursework1.tex)
+
+\section{Introduction}
+
+This section addresses Task~4 of COMP3028 Coursework~1: the encryption of the three plaintext files specified in the coursework (5, 10, and 16 bytes) using \textbf{AES-128} in four modes of operation---\textbf{ECB}, \textbf{CBC}, \textbf{CFB}, and \textbf{OFB}. The objectives are to identify which modes employ padding, to present the resulting ciphertext lengths, and to explain the rationale for padding in block-oriented modes and its absence in stream-oriented modes.
+
+\section{Methodology and Experimental Setup}
+
+\subsection{Alignment with SEED Lab}
+
+The procedure follows the \textbf{SEED Lab (Secret-Key Encryption)} and its lab manual (Crypto\_Encryption, seedsecuritylabs.org). Those materials specify the use of \textbf{OpenSSL} for AES-128 in ECB, CBC, CFB, and OFB modes, and describe PKCS\#5/PKCS\#7 padding for block modes and the absence of padding for CFB and OFB. The EVP sample code in the Labsetup is consistent with this behaviour.
+
+\subsection{Inputs and Parameters}
+
+\begin{itemize}
+  \item \textbf{Input files:} The three plaintext files specified in the coursework: \pathinline{data/task4/f1.txt} (5 bytes), \pathinline{f2.txt} (10 bytes), \pathinline{f3.txt} (16 bytes).
+  \item \textbf{Key and IV:} From \pathinline{key\_iv.txt} (Moodle): 16-byte key \texttt{\seqsplit{00112233445566778899aabbccddeeff}}, IV \texttt{\seqsplit{010203040506070809000a0b0c0d0e0f}}.
+  \item \textbf{Modes:} AES-128 in ECB (no IV), CBC, CFB, and OFB, with the same key and, where applicable, the same IV.
+\end{itemize}
+
+\subsection{Encryption Procedure}
+
+Encryption was performed using \textbf{OpenSSL} via the script \pathinline{scripts/encrypt\_task4\_openssl.py} when available, which invokes the following commands (as in the lab manual):
+
+\begin{itemize}
+  \item \textbf{ECB:} \texttt{openssl enc -aes-128-ecb -e -K <key> -in <file> -out <file>}
+  \item \textbf{CBC:} \texttt{openssl enc -aes-128-cbc -e -K <key> -iv <iv> -in <file> -out <file>}
+  \item \textbf{CFB:} \texttt{openssl enc -aes-128-cfb -e -K <key> -iv <iv> -in <file> -out <file>}
+  \item \textbf{OFB:} \texttt{openssl enc -aes-128-ofb -e -K <key> -iv <iv> -in <file> -out <file>}
+\end{itemize}
+
+OpenSSL was used from the system PATH when available (e.g.\ within the SEED Lab Docker environment or a local installation). The script was executed from the project root: \texttt{python scripts/encrypt\_task4\_openssl.py} or \texttt{encrypt\_task4.py}.
+
+An alternative implementation, \pathinline{scripts/encrypt\_task4.py}, uses Python with the PyCryptodome library when OpenSSL is not in PATH, replicating the same padding behaviour (PKCS\#7 for ECB/CBC; no padding for CFB/OFB). Both implementations produce identical ciphertext lengths and padding behaviour.
+
+\subsection{Experimental Setup}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Cipher & AES-128 (block size 16 bytes) \\
+Key & From \pathinline{key\_iv.txt} (Moodle): \texttt{\seqsplit{00112233445566778899aabbccddeeff}} \\
+IV & \texttt{\seqsplit{010203040506070809000a0b0c0d0e0f}} \\
+Input files & \pathinline{data/task4/f1.txt}, \pathinline{f2.txt}, \pathinline{f3.txt} (5, 10, 16 bytes) \\
+Tool & PyCryptodome (Python); OpenSSL \texttt{openssl enc} when available \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Implementation}
+
+\subsection{OpenSSL invocation}
+(\pathinline{scripts/encrypt\_task4\_openssl.py}, \texttt{run\_openssl\_enc}, lines 32--42.) The primary script invokes \texttt{openssl enc} via \texttt{subprocess.run}. The command is built with the mode (\texttt{-aes-128-ecb}, \texttt{-aes-128-cbc}, etc.), key, input and output paths; ECB omits the IV, while CBC, CFB, and OFB include it.
+
+\begin{lstlisting}[caption={Invoking OpenSSL for encryption.}, label=lst:task4_openssl]
+def run_openssl_enc(mode: str, infile: Path, outfile: Path, key_hex: str, iv_hex: str | None) -> int:
+    cmd = [
+        "openssl", "enc", f"-aes-128-{mode}", "-e",
+        "-K", key_hex, "-in", str(infile), "-out", str(outfile)
+    ]
+    if iv_hex and mode != "ecb":
+        cmd.extend(["-iv", iv_hex])
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+    if r.returncode != 0:
+        raise RuntimeError(f"openssl failed: {r.stderr or r.stdout}")
+    return outfile.stat().st_size
+\end{lstlisting}
+
+\subsection{Padding behaviour in Python alternative}
+(\pathinline{scripts/encrypt\_task4.py}, \texttt{encrypt\_ecb}, \texttt{encrypt\_cbc}, \texttt{encrypt\_cfb}, \texttt{encrypt\_ofb}, lines 38--64.) The alternative script uses PyCryptodome. Block modes (ECB, CBC) call \texttt{pad(plaintext, AES.block\_size)} before encryption; stream-like modes (CFB, OFB) encrypt the plaintext directly without padding. This mirrors OpenSSL's behaviour.
+
+\begin{lstlisting}[caption={ECB/CBC use padding; CFB/OFB do not.}, label=lst:task4_padding]
+def encrypt_ecb(plaintext: bytes, key: bytes) -> bytes:
+    cipher = AES.new(key, AES.MODE_ECB)
+    padded = pad(plaintext, AES.block_size)
+    return cipher.encrypt(padded)
+
+def encrypt_cfb(plaintext: bytes, key: bytes, iv: bytes) -> bytes:
+    cipher = AES.new(key, AES.MODE_CFB, iv=iv, segment_size=128)
+    return cipher.encrypt(plaintext)
+\end{lstlisting}
+
+\section{Results: Ciphertext Lengths}
+
+The following presents the ciphertext lengths observed for each mode and file size.
+
+\subsection{Summary Table}
+
+\begin{center}
+\begin{tabular}{lccccc}
+\toprule
+File & Plaintext length & ECB & CBC & CFB & OFB \\
+\midrule
+f1.txt & 5 bytes & 16 & 16 & 5 & 5 \\
+f2.txt & 10 bytes & 16 & 16 & 10 & 10 \\
+f3.txt & 16 bytes & 32 & 32 & 16 & 16 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Observations}
+
+\begin{itemize}
+  \item \textbf{ECB and CBC:} Ciphertext length is always a multiple of the block size (16 bytes) \cite{nist_sp800_38a}. For \texttt{f3.txt}, which is exactly 16 bytes, PKCS\#7 still appends a full padding block (16 bytes of value 0x10), yielding a ciphertext of 32 bytes. NIST SP~800-38A (Appendix~A, p.~17) recommends padding every message, including those whose final block is already complete, by appending an entire block of padding \cite[Appendix A]{nist_sp800_38a}. The Handbook of Applied Cryptography similarly states that ECB and CBC require ``n-bit plaintext blocks'' and references Algorithm~9.58 for padding \cite[Ch.~7, Sect.~7.2.2]{menezes1996hac}.
+  \item \textbf{CFB and OFB:} Ciphertext length equals plaintext length; no padding is applied \cite{nist_sp800_38a, stallings2020crypto}. NIST specifies that for OFB (and CTR), ``the plaintext need not be a multiple of the block size'' and the last ciphertext block may be a partial block \cite[Sect.~5.2]{nist_sp800_38a}; CFB with segment sizes smaller than the block size similarly produces ciphertext equal in length to the plaintext. Stallings explains that CFB and OFB ``turn a block cipher into a stream cipher'' and thus operate without requiring block alignment \cite[Ch.~6]{stallings2020crypto}.
+\end{itemize}
+
+\subsection{Verification}
+
+The script was executed from the project root: \texttt{python scripts/encrypt\_task4.py} (or \texttt{encrypt\_task4\_openssl.py} when OpenSSL is in PATH). The representative output below was produced by the script and confirms the ciphertext lengths in the Summary Table. When OpenSSL is not available, \pathinline{encrypt\_task4.py} uses PyCryptodome and yields identical results; the methodology and padding behaviour are unchanged.
+
+{\small
+\begin{lstlisting}[breaklines=true,breakatwhitespace=false,basicstyle=\ttfamily\scriptsize]
+Task 4: Padding - AES-128 ECB, CBC, CFB, OFB
+Key (hex): 00112233445566778899aabbccddeeff
+IV  (hex): 010203040506070809000a0b0c0d0e0f
+
+File: f1.txt  |  Plaintext length: 5 bytes  |  Expected: 5
+  ECB  | Ciphertext length: 16 bytes | Hex: 3846c2a1c915c13fb0ed060622d7d022
+  CBC  | Ciphertext length: 16 bytes | Hex: 665d8a869d00763a20e0ac01b5aeb6ef
+  CFB  | Ciphertext length: 5 bytes | Hex: ea0135a438
+  OFB  | Ciphertext length: 5 bytes | Hex: ea0135a438
+\end{lstlisting}
+}
+
+\section{Explanation: Why Some Modes Require Padding and Others Do Not}
+
+The differing ciphertext lengths reflect a fundamental distinction between block-oriented and stream-oriented modes. ECB and CBC use padding; CFB and OFB do not. The following subsections explain the rationale.
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Modes \textbf{with} padding & Modes \textbf{without} padding \\
+\midrule
+ECB, CBC & CFB, OFB \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Modes That Use Padding: ECB and CBC}
+
+ECB and CBC are \textbf{block cipher modes}: they process the plaintext in \textbf{fixed-size blocks} (for AES, 16 bytes per block) \cite{nist_sp800_38a, stallings2020crypto}. NIST SP~800-38A specifies that ``for the ECB and CBC modes, the total number of bits in the plaintext must be a multiple of the block size'' \cite[Sect.~5.2]{nist_sp800_38a}. The block cipher primitive accepts only inputs of exactly one block length. When the plaintext length is not a multiple of the block size, the final block is incomplete, so \textbf{padding} (e.g.\ PKCS\#7) is appended to form a whole number of blocks before encryption \cite{menezes1996hac, seedlab_crypto_encryption}. The Handbook of Applied Cryptography notes that ECB and CBC require ``n-bit plaintext blocks'' and references Algorithm~9.58 for padding \cite[Ch.~7, Sect.~7.2.2]{menezes1996hac}. Stallings' textbook similarly describes ECB and CBC as operating on fixed block sizes \cite[Ch.~6]{stallings2020crypto}.
+
+Padding is necessary because the cipher operates on complete blocks only; any shorter input must be extended to a full block. On decryption, the padding is removed according to a well-defined scheme (e.g.\ the last byte encodes the number of padding bytes).
+
+\subsection{Modes That Do Not Use Padding: CFB and OFB}
+
+CFB (Cipher Feedback) and OFB (Output Feedback) are \textbf{stream-cipher-like} modes: they use the block cipher to generate a \textbf{keystream}, which is then XORed with the plaintext \cite{nist_sp800_38a, stallings2020crypto}. NIST SP~800-38A states that for OFB and CTR, ``the plaintext need not be a multiple of the block size'' and the ciphertext may include a partial final block \cite[Sect.~5.2]{nist_sp800_38a}; thus the ciphertext length equals the plaintext length.
+
+No padding is needed because encryption and decryption use the same keystream and the XOR is applied byte-by-byte (or segment-by-segment). Only as many keystream bytes as there are plaintext bytes are consumed; no additional bytes are required \cite{menezes1996hac, seedlab_crypto_encryption}. The Handbook of Applied Cryptography describes CFB and OFB as processing ``r-bit blocks'' (where $r \leq n$) without requiring full block alignment \cite[Ch.~7, Sect.~7.2.2]{menezes1996hac}. Katz and Lindell note that stream-cipher modes allow encryption of arbitrary-length messages without padding \cite[Ch.~3]{katz2020imc}.
+
+\section{Reference Commands}
+
+The following OpenSSL commands were used, consistent with the SEED Lab manual:
+
+\begin{lstlisting}[breaklines=true,breakatwhitespace=false,basicstyle=\ttfamily\scriptsize,frame=single]
+# ECB (no IV)
+openssl enc -aes-128-ecb -e -K <key_hex> -in f1.txt -out f1_ecb.bin
+
+# CBC, CFB, OFB (with IV)
+openssl enc -aes-128-cbc -e -K <key_hex> -iv <iv_hex> -in f1.txt -out f1_cbc.bin
+openssl enc -aes-128-cfb -e -K <key_hex> -iv <iv_hex> -in f1.txt -out f1_cfb.bin
+openssl enc -aes-128-ofb -e -K <key_hex> -iv <iv_hex> -in f1.txt -out f1_ofb.bin
+\end{lstlisting}
+
+OpenSSL applies PKCS\#7 padding for ECB and CBC; CFB and OFB are used without padding, as documented in the SEED Lab manual \cite{seedlab_crypto_encryption}.
+
+\section{Deliverables}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Item} & \textbf{Description} \\
+\midrule
+Primary script & \pathinline{scripts/encrypt\_task4\_openssl.py} --- OpenSSL-based encryption for all four modes \\
+Alternative script & \pathinline{scripts/encrypt\_task4.py} --- Python/PyCryptodome implementation with equivalent padding behaviour \\
+Ciphertexts & \pathinline{data/task4/f1\_ecb.bin}, \pathinline{f1\_cbc.bin}, \pathinline{f1\_cfb.bin}, \pathinline{f1\_ofb.bin}, and corresponding files for \pathinline{f2} and \pathinline{f3} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Verification was performed by inspection of the script output and, where applicable, hex dumps of the ciphertext files.

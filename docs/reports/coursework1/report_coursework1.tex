@@ -1,0 +1,65 @@
+% COMP3028 Coursework 1 – Single report (Tasks 1, 4, 5)
+% Build from docs/reports/coursework1/: pdflatex report_coursework1 && bibtex report_coursework1 && pdflatex report_coursework1 && pdflatex report_coursework1
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{seqsplit}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\newcommand{\pathinline}[1]{{\ttfamily\seqsplit{#1}}}
+\setlength{\parskip}{0.6\baselineskip plus 2pt}
+\setlength{\emergencystretch}{1.5em}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape,
+  showstringspaces=false,
+}
+
+\title{\textbf{COMP3028 Computer Security --- Coursework 1}\\[0.5em]
+\large Report: Task 1 (Frequency Analysis), Task 4 (Padding), Task 5 (Error Propagation)}
+\author{David Leong Jin Tao \\[0.25em] Student ID: 20620891}
+\date{\today}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\vspace{0.5em}
+\tableofcontents
+\newpage
+
+%-------------------------------------------------------------------------------
+\part{Task 1: Frequency Analysis}
+%-------------------------------------------------------------------------------
+\input{task1_content}
+
+%-------------------------------------------------------------------------------
+\part{Task 4: Block Cipher Modes and Padding}
+%-------------------------------------------------------------------------------
+\input{../task4/report_task4}
+
+%-------------------------------------------------------------------------------
+\part{Task 5: Error Propagation}
+%-------------------------------------------------------------------------------
+\input{../task5/report_task5}
+
+%-------------------------------------------------------------------------------
+% Bibliography (Task 1 references)
+%-------------------------------------------------------------------------------
+\bibliographystyle{ieeetr}
+\bibliography{report_coursework1}
+\end{document}
