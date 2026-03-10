@@ -1,0 +1,58 @@
+# LaTeX build artifacts
+docs/reports/task1/report_task1.aux
+docs/reports/task1/report_task1.bbl
+docs/reports/task1/report_task1.blg
+docs/reports/task1/report_task1.log
+docs/reports/task1/report_task1.out
+docs/reports/task1/report_task1.toc
+docs/reports/task1/build/
+
+docs/reports/coursework1/report_coursework1.aux
+docs/reports/coursework1/report_coursework1.bbl
+docs/reports/coursework1/report_coursework1.blg
+docs/reports/coursework1/report_coursework1.log
+docs/reports/coursework1/report_coursework1.out
+docs/reports/coursework1/report_coursework1.toc
+docs/reports/coursework1/build/
+
+# Stray LaTeX outputs if pdflatex is run from docs/ (use docs/reports/task1/ or docs/reports/coursework1/ instead)
+docs/report_task1.aux
+docs/report_task1.bbl
+docs/report_task1.blg
+docs/report_task1.log
+docs/report_task1.out
+docs/report_task1.toc
+docs/report_task1.pdf
+
+# Environment / secrets (do not commit keys or API tokens)
+.env
+.env.*
+!.env.example
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Testing / tooling
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

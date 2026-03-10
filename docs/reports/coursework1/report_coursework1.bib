@@ -1,0 +1,87 @@
+% COMP3028 Coursework 1 – Task 1 Report – References
+% Use \cite{} in the report for all sources.
+
+@misc{kun2012cryptanalysis,
+  author       = {Kun, Jeremy},
+  title        = {Cryptanalysis with {N}-grams},
+  howpublished = {Math \& Programming},
+  year         = {2012},
+  url          = {https://www.jeremykun.com/2012/02/03/cryptanalysis-with-n-grams/},
+  note         = {Accessed for this report. Discusses substitution cipher representation, trigram and bigram scoring, steepest ascent, and bigram-guided neighbour generation.}
+}
+
+@misc{practicalcrypto_substitution,
+  author       = {{Practical Cryptography}},
+  title        = {Cryptanalysis of the Simple Substitution Cipher},
+  howpublished = {Practical Cryptography},
+  year         = {n.d.},
+  url          = {http://practicalcryptography.com/cryptanalysis/stochastic-searching/cryptanalysis-simple-substitution-cipher/},
+  note         = {Describes hill climbing with quadgram fitness, random key and swap steps, multiple restarts, unicity distance, and limitations.}
+}
+
+@misc{norvig_ngrams,
+  author       = {Norvig, Peter},
+  title        = {Letter n-gram counts},
+  howpublished = {count\_2l.txt, count\_3l.txt},
+  year         = {n.d.},
+  url          = {http://norvig.com/ngrams/},
+  note         = {Widely used for bigram/trigram statistics; referenced in Kun (2012).}
+}
+
+@misc{codereview_ngram,
+  author       = {{Code Review Stack Exchange}},
+  title        = {Decrypting a substitution cipher using n-gram frequency analysis},
+  howpublished = {Stack Exchange},
+  year         = {n.d.},
+  url          = {https://codereview.stackexchange.com/questions/93472/decrypting-a-substitution-cipher-using-n-gram-frequency-analysis},
+  note         = {Discussion and code for n-gram-based decryption.}
+}
+
+@misc{seedlab_crypto_encryption,
+  author       = {{SEED Labs}},
+  title        = {Secret-Key Encryption},
+  howpublished = {SEED Labs 2.0 -- Crypto Lab},
+  year         = {2020},
+  url          = {https://seedsecuritylabs.org/Labs_20.04/Crypto/Crypto_Encryption/},
+  note         = {Lab on encryption algorithms, modes, padding, and IV; uses tools and programs to encrypt/decrypt messages.}
+}
+
+@techreport{nist_sp800_38a,
+  author       = {Dworkin, Morris},
+  title        = {Recommendation for Block Cipher Modes of Operation: Methods and Techniques},
+  institution  = {National Institute of Standards and Technology},
+  year         = {2001},
+  number       = {SP 800-38A},
+  pages        = {1--66},
+  url          = {https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-38a.pdf},
+  note         = {Appendix~A (p.~17): Padding for ECB/CBC/CFB; full-block padding when plaintext already complete. Sect.~5.2: OFB/CTR allow partial blocks. Appendix~D (p.~21): Error properties---ECB/OFB/CTR: no cross-block propagation; CBC: bit errors propagate to succeeding block; CFB: errors affect next b/s segments.}
+}
+
+@book{stallings2020crypto,
+  author       = {Stallings, William},
+  title        = {Cryptography and Network Security: Principles and Practice},
+  edition      = {8th},
+  year         = {2020},
+  publisher    = {Pearson},
+  address      = {Boston},
+  note         = {Ch.~6: Block cipher modes ECB, CBC, CFB, OFB; ECB block independence; CBC/CFB error propagation; stream-cipher-like behaviour of CFB/OFB; padding requirements for block modes.}
+}
+
+@book{menezes1996hac,
+  author       = {Menezes, Alfred J. and van Oorschot, Paul C. and Vanstone, Scott A.},
+  title        = {Handbook of Applied Cryptography},
+  year         = {1996},
+  publisher    = {CRC Press},
+  address      = {Boca Raton},
+  note         = {Ch.~7, Sect.~7.2.2 (pp.~230--236): ECB (Alg.~7.11)---error affects that block only; CBC (Alg.~7.13)---single bit error affects blocks cj and cj+1, recovered plaintext has bit errors precisely where ciphertext did; CFB/OFB stream-like; padding (Alg.~9.58) for ECB/CBC.}
+}
+
+@book{katz2020imc,
+  author       = {Katz, Jonathan and Lindell, Yehuda},
+  title        = {Introduction to Modern Cryptography},
+  edition      = {3rd},
+  year         = {2020},
+  publisher    = {CRC Press},
+  address      = {Boca Raton},
+  note         = {Ch.~3: Modes of operation and encryption in practice; block-cipher vs.\ stream-cipher modes.}
+}

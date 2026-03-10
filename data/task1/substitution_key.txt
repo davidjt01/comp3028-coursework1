@@ -1,0 +1,2 @@
+Plaintext  a b c d e f g h i j k l m n o p q r s t u v w x y z
+Ciphertext g t q d h b j e i v z r c w s p f x u m k o l y n a

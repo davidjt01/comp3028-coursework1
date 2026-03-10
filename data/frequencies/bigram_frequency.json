@@ -1,0 +1,170 @@
+[
+  {
+    "bigram": "th",
+    "frequency_percent": "3.56%"
+  },
+  {
+    "bigram": "of",
+    "frequency_percent": "1.17%"
+  },
+  {
+    "bigram": "io",
+    "frequency_percent": "0.83%"
+  },
+  {
+    "bigram": "he",
+    "frequency_percent": "3.07%"
+  },
+  {
+    "bigram": "ed",
+    "frequency_percent": "1.17%"
+  },
+  {
+    "bigram": "le",
+    "frequency_percent": "0.83%"
+  },
+  {
+    "bigram": "in",
+    "frequency_percent": "2.43%"
+  },
+  {
+    "bigram": "is",
+    "frequency_percent": "1.13%"
+  },
+  {
+    "bigram": "ve",
+    "frequency_percent": "0.83%"
+  },
+  {
+    "bigram": "er",
+    "frequency_percent": "2.05%"
+  },
+  {
+    "bigram": "it",
+    "frequency_percent": "1.12%"
+  },
+  {
+    "bigram": "co",
+    "frequency_percent": "0.79%"
+  },
+  {
+    "bigram": "an",
+    "frequency_percent": "1.99%"
+  },
+  {
+    "bigram": "al",
+    "frequency_percent": "1.09%"
+  },
+  {
+    "bigram": "me",
+    "frequency_percent": "0.79%"
+  },
+  {
+    "bigram": "re",
+    "frequency_percent": "1.85%"
+  },
+  {
+    "bigram": "ar",
+    "frequency_percent": "1.07%"
+  },
+  {
+    "bigram": "de",
+    "frequency_percent": "0.76%"
+  },
+  {
+    "bigram": "on",
+    "frequency_percent": "1.76%"
+  },
+  {
+    "bigram": "st",
+    "frequency_percent": "1.05%"
+  },
+  {
+    "bigram": "hi",
+    "frequency_percent": "0.76%"
+  },
+  {
+    "bigram": "at",
+    "frequency_percent": "1.49%"
+  },
+  {
+    "bigram": "to",
+    "frequency_percent": "1.05%"
+  },
+  {
+    "bigram": "ri",
+    "frequency_percent": "0.73%"
+  },
+  {
+    "bigram": "en",
+    "frequency_percent": "1.45%"
+  },
+  {
+    "bigram": "nt",
+    "frequency_percent": "1.04%"
+  },
+  {
+    "bigram": "ro",
+    "frequency_percent": "0.73%"
+  },
+  {
+    "bigram": "nd",
+    "frequency_percent": "1.35%"
+  },
+  {
+    "bigram": "ng",
+    "frequency_percent": "0.95%"
+  },
+  {
+    "bigram": "ic",
+    "frequency_percent": "0.70%"
+  },
+  {
+    "bigram": "ti",
+    "frequency_percent": "1.34%"
+  },
+  {
+    "bigram": "se",
+    "frequency_percent": "0.93%"
+  },
+  {
+    "bigram": "ne",
+    "frequency_percent": "0.69%"
+  },
+  {
+    "bigram": "es",
+    "frequency_percent": "1.34%"
+  },
+  {
+    "bigram": "ha",
+    "frequency_percent": "0.93%"
+  },
+  {
+    "bigram": "ea",
+    "frequency_percent": "0.69%"
+  },
+  {
+    "bigram": "or",
+    "frequency_percent": "1.28%"
+  },
+  {
+    "bigram": "as",
+    "frequency_percent": "0.87%"
+  },
+  {
+    "bigram": "ra",
+    "frequency_percent": "0.69%"
+  },
+  {
+    "bigram": "te",
+    "frequency_percent": "1.20%"
+  },
+  {
+    "bigram": "ou",
+    "frequency_percent": "0.87%"
+  },
+  {
+    "bigram": "ce",
+    "frequency_percent": "0.65%"
+  }
+]

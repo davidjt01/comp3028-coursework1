@@ -1,0 +1,212 @@
+% Task 5: Error Propagation (content only; included by report_coursework1.tex)
+
+\section{Introduction}
+\label{sec:task5}
+
+This section addresses Task~5 of COMP3028 Coursework~1: to encrypt the designated plaintext with AES-128 in ECB, CBC, CFB, and OFB modes; to corrupt a single bit of the 55th byte in each resulting ciphertext; to decrypt the corrupted ciphertexts with the same key and IV; and to report how much information can be recovered in each mode, with justification. The procedure follows the coursework specification and the SEED Lab (Secret-Key Encryption) and its lab manual (Crypto\_Encryption, Section~7, Error Propagation).
+
+\section{Methodology and Experimental Setup}
+
+\subsection{Alignment with the SEED Lab}
+
+The SEED Lab manual (Crypto\_Encryption, seedsecuritylabs.org, Section~7) prescribes: (1) encrypt a file of at least 1000 bytes with AES-128; (2) corrupt one bit of the 55th byte in the encrypted file (e.g.\ using a hex editor); (3) decrypt the corrupted ciphertext with the correct key and IV; (4) analyse how much information is recoverable for ECB, CBC, CFB, and OFB. The implementation described below adheres to this procedure. Encryption and decryption were performed either with OpenSSL (\texttt{openssl enc}) when available, or with the PyCryptodome library under Python, both yielding identical behaviour for the purposes of this task.
+
+\subsection{Inputs and Parameters}
+
+\begin{itemize}
+  \item \textbf{Plaintext:} The Task~5 plaintext file specified in the coursework (\pathinline{data/task5/task5\_plaintext.txt}), length 1078 bytes.
+  \item \textbf{Key and IV:} From \pathinline{key\_iv.txt} (Moodle): 16-byte key \texttt{\seqsplit{00112233445566778899aabbccddeeff}}, IV \texttt{\seqsplit{010203040506070809000a0b0c0d0e0f}}.
+  \item \textbf{Corruption:} Exactly one bit of the 55th byte (0-based index 54) of each ciphertext was flipped (XOR with 0x01, least significant bit).
+  \item \textbf{Modes:} AES-128 in ECB (no IV), CBC, CFB, and OFB, with the same key and, where applicable, the same IV.
+\end{itemize}
+
+\subsection{Encryption and Decryption Procedure}
+
+Encryption and decryption were performed using \textbf{OpenSSL} via the script \pathinline{scripts/task5\_error\_propagation.py}, which invokes the following commands (as in the SEED Lab manual, consistent with Task~4):
+
+\begin{itemize}
+  \item \textbf{Encrypt (ECB):} \texttt{openssl enc -aes-128-ecb -e -K <key> -in <file> -out <file>}
+  \item \textbf{Encrypt (CBC, CFB, OFB):} \texttt{openssl enc -aes-128-<mode> -e -K <key> -iv <iv> -in <file> -out <file>}
+  \item \textbf{Decrypt (ECB):} \texttt{openssl enc -aes-128-ecb -d -K <key> -in <file> -out <file>}
+  \item \textbf{Decrypt (CBC, CFB, OFB):} \texttt{openssl enc -aes-128-<mode> -d -K <key> -iv <iv> -in <file> -out <file>}
+\end{itemize}
+
+OpenSSL was used from the system PATH when available. The script was executed from the project root: \texttt{python scripts/task5\_error\_propagation.py}.
+
+An alternative implementation uses the PyCryptodome library when OpenSSL is not in PATH, replicating the same padding behaviour as Task~4 (PKCS\#7 for ECB/CBC; no padding for CFB/OFB).
+
+\subsection{Experimental Setup}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Cipher & AES-128 (block size 16 bytes) \\
+Key & From \pathinline{key\_iv.txt} (Moodle): \texttt{\seqsplit{00112233445566778899aabbccddeeff}} \\
+IV & \texttt{\seqsplit{010203040506070809000a0b0c0d0e0f}} \\
+Plaintext & \pathinline{data/task5/task5\_plaintext.txt} (1078 bytes) \\
+Corruption & One bit flipped at byte index 54 (55th byte), mask 0x01 \\
+Tool & PyCryptodome (Python); OpenSSL \texttt{openssl enc} when available \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The script produced, for each mode, an encrypted file, a corrupted ciphertext (one bit flipped at byte index 54), and the decryption of the corrupted ciphertext. Outputs are written to \pathinline{data/task5/} with the naming convention \texttt{task5\_<mode>.bin}, \texttt{task5\_<mode>\_corrupted.bin}, and \texttt{task5\_<mode>\_decrypted.bin}.
+
+\section{Implementation}
+
+\subsection{OpenSSL invocation}
+(\pathinline{scripts/task5\_error\_propagation.py}, \texttt{run\_openssl\_enc}, \texttt{run\_openssl\_dec}, lines 45--71.) The script invokes \texttt{openssl enc} via \texttt{subprocess.run} for both encryption and decryption. The command is built with the mode (\texttt{-aes-128-ecb}, \texttt{-aes-128-cbc}, etc.), \texttt{-e} or \texttt{-d}, key, input and output paths; ECB omits the IV, while CBC, CFB, and OFB include it.
+
+\begin{lstlisting}[caption={Invoking OpenSSL for encryption and decryption.}, label=lst:task5_openssl]
+def run_openssl_enc(mode: str, infile: Path, outfile: Path, key_hex: str, iv_hex: str | None) -> None:
+    cmd = [
+        "openssl", "enc", f"-aes-128-{mode}", "-e",
+        "-K", key_hex, "-in", str(infile), "-out", str(outfile)
+    ]
+    if iv_hex and mode != "ecb":
+        cmd.extend(["-iv", iv_hex])
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    if r.returncode != 0:
+        raise RuntimeError(f"openssl enc failed: {r.stderr or r.stdout}")
+
+def run_openssl_dec(mode: str, infile: Path, outfile: Path, key_hex: str, iv_hex: str | None) -> None:
+    cmd = [
+        "openssl", "enc", f"-aes-128-{mode}", "-d",
+        "-K", key_hex, "-in", str(infile), "-out", str(outfile)
+    ]
+    if iv_hex and mode != "ecb":
+        cmd.extend(["-iv", iv_hex])
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    if r.returncode != 0:
+        raise RuntimeError(f"openssl dec failed: {r.stderr or r.stdout}")
+\end{lstlisting}
+
+\subsection{Padding behaviour in Python alternative}
+(\pathinline{scripts/task5\_error\_propagation.py}, \texttt{\_encrypt\_decrypt\_pycrypto}, lines 76--103.) When OpenSSL is not in PATH, the script uses PyCryptodome. Block modes (ECB, CBC) call \texttt{pad(plaintext, AES.block\_size)} before encryption and \texttt{unpad} after decryption; stream-like modes (CFB, OFB) encrypt and decrypt the plaintext directly without padding. This mirrors OpenSSL's behaviour and is consistent with Task~4.
+
+\subsection{One-bit corruption}
+(\pathinline{scripts/task5\_error\_propagation.py}, lines 29--31, 106--113.) The 55th byte (1-based) corresponds to index 54 (0-based). A single bit is flipped by XORing that byte with \texttt{0x01} (least significant bit). The \texttt{corrupt\_one\_bit} function returns a copy of the ciphertext with the specified bit toggled.
+
+\begin{lstlisting}[caption={Corruption parameters and one-bit flip.}, label=lst:task5_corrupt]
+# 55th byte (1-based) = index 54 (0-based). Corrupt exactly one bit (LSB flip).
+BYTE_INDEX_TO_CORRUPT = 54
+BIT_MASK = 0x01  # flip LSB
+
+def corrupt_one_bit(data: bytes, byte_index: int, bit_mask: int = 0x01) -> bytes:
+    arr = bytearray(data)
+    arr[byte_index] ^= bit_mask
+    return bytes(arr)
+\end{lstlisting}
+
+\subsection{Recovery comparison}
+(\pathinline{scripts/task5\_error\_propagation.py}, \texttt{compare\_recovery}, lines 116--139.) The script compares the original plaintext with the decrypted (possibly corrupted) output byte-by-byte. It reports the number of matching bytes, the first index at which they differ, and the recoverable percentage. Extra bytes in the decrypted output (e.g.\ from padding in ECB/CBC) are not counted as recovered.
+
+\begin{lstlisting}[caption={Comparing original and decrypted plaintext.}, label=lst:task5_compare]
+def compare_recovery(original: bytes, decrypted: bytes) -> dict:
+    n_orig, n_dec = len(original), len(decrypted)
+    n_compare = min(n_orig, n_dec)
+    matches = sum(1 for i in range(n_compare) if original[i] == decrypted[i])
+    first_error = None
+    for i in range(n_compare):
+        if original[i] != decrypted[i]:
+            first_error = i
+            break
+    pct = (100.0 * matches / n_orig) if n_orig else 0.0
+    return {"matching_bytes": matches, "first_error_index": first_error, "recoverable_pct": pct, ...}
+\end{lstlisting}
+
+\section{Results: Recovery After One-Bit Corruption}
+
+The following presents the recovery statistics for each mode after corrupting one bit of the 55th ciphertext byte.
+
+\subsection{Summary of Recovered Information}
+
+Table~\ref{tab:task5recovery} summarises, for each mode, the ciphertext length, the number of plaintext bytes that match the original after decrypting the corrupted ciphertext, and the byte index at which the first error appears.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Mode & Ciphertext length & Recovered bytes (of 1078) & First error (byte index) \\
+\midrule
+ECB & 1088 & 1062 (98.52\%) & 48 \\
+CBC & 1088 & 1062 (98.52\%) & 48 \\
+CFB & 1078 & 1061 (98.42\%) & 54 \\
+OFB & 1078 & 1077 (99.91\%) & 54 \\
+\bottomrule
+\end{tabular}
+\caption{Recovery statistics after corrupting one bit of the 55th ciphertext byte.}
+\label{tab:task5recovery}
+\end{table}
+
+\subsection{Interpretation by Mode}
+
+The observed recovery patterns match the error-propagation properties documented in NIST SP~800-38A (Appendix~D, p.~21) \cite[Appendix D]{nist_sp800_38a}, the Handbook of Applied Cryptography \cite[Ch.~7, Sect.~7.2.2]{menezes1996hac}, and Stallings' textbook \cite[Ch.~6]{stallings2020crypto}:
+
+\begin{itemize}
+  \item \textbf{ECB.} The 55th ciphertext byte lies in the block spanning bytes 48--63 (block index 3). NIST states that for ECB, ``bit errors within a ciphertext block do not affect the decryption of any other blocks'' \cite[Appendix D]{nist_sp800_38a}. The Handbook of Applied Cryptography similarly notes that ``one or more bit errors in a single ciphertext block affect decipherment of that block only'' \cite[Alg.~7.11, p.~226]{menezes1996hac}. Only that block is affected; all other blocks decrypt correctly. Thus bytes 0--47 and 64--1077 are recovered (48 + 1014 = 1062 bytes). The first error occurs at byte index 48.
+  \item \textbf{CBC.} The corrupted ciphertext block corrupts the corresponding plaintext block (bytes 48--63). In CBC decryption, $P_i = D(C_i) \oplus C_{i-1}$, so the corrupted $C_3$ causes block~3 to be fully corrupted (avalanche effect). NIST states that ``any bit positions that contain bit errors in a ciphertext block will also contain bit errors in the decryption of the succeeding ciphertext block; the other bit positions are not affected'' \cite[Appendix D]{nist_sp800_38a}. The Handbook notes that ``the recovered plaintext $x'_{j+1}$ has bit errors precisely where $c_j$ did'' \cite[Alg.~7.13, p.~231]{menezes1996hac}. The same corrupted $C_3$ is XORed when decrypting block~4, so exactly one bit of block~4 is wrong (in the same bit position). Typically 17 bytes are corrupted; in our run, one byte in block~3 matched the original by chance, yielding 16 errors and 1062 bytes recovered. The first error is at byte 48.
+  \item \textbf{CFB.} In CFB (stream-like), the corrupted ciphertext byte affects the corresponding plaintext byte (index 54) directly. NIST states that ``bit errors in a ciphertext segment affect the decryption of the next $b/s$ (rounded up) ciphertext segments'' \cite[Appendix D]{nist_sp800_38a}. The same corrupted byte is fed into the feedback path, so the following segment (next block) is corrupted as well \cite{stallings2020crypto, seedlab_crypto_encryption}. Stallings describes CFB error propagation as affecting the current and following segments \cite[Ch.~6]{stallings2020crypto}. The first error is at byte 54; 17 bytes are incorrect in total (1061 recovered).
+  \item \textbf{OFB.} NIST states that for OFB, ``bit errors within a ciphertext block do not affect the decryption of any other blocks'' and ``the bit error(s) in the decrypted ciphertext block occur in the same bit position(s) as in the ciphertext block'' \cite[Appendix D]{nist_sp800_38a}. The keystream is generated from the key and IV only; it does not depend on the ciphertext \cite[Ch.~7]{menezes1996hac}. Corrupting one ciphertext byte therefore affects only the corresponding plaintext byte (index 54). No propagation occurs; 1077 bytes are recovered and a single byte is wrong.
+\end{itemize}
+
+\subsection{Justification}
+
+These results are consistent with the SEED Lab manual (Section~7) \cite{seedlab_crypto_encryption} and with the standard error-propagation properties of the four modes defined in NIST SP~800-38A (Appendix~D: Error Properties, p.~21) \cite[Appendix D]{nist_sp800_38a} and described in standard textbooks \cite{stallings2020crypto, menezes1996hac}: block modes (ECB, CBC) exhibit block-level or chained corruption, while stream-like modes (CFB, OFB) confine the effect to the affected ciphertext position and, in CFB, to the following segment. OFB shows the least propagation (one byte only), as expected from its definition. Table~D.1 in NIST SP~800-38A summarises these effects \cite[Appendix D]{nist_sp800_38a}; the Handbook of Applied Cryptography provides the same characterisation in Section~7.2.2 \cite[Ch.~7]{menezes1996hac}.
+
+\subsection{Verification}
+
+The script was executed from the project root: \texttt{python scripts/task5\_error\_propagation.py}. The output below was produced by the script and confirms the recovery statistics in Table~\ref{tab:task5recovery}. When OpenSSL is not in PATH, the script uses PyCryptodome and yields identical results; the methodology and padding behaviour are unchanged. The reported counts and first-error indices were confirmed by byte-wise comparison of the decrypted files against the original plaintext.
+
+{\small
+\begin{lstlisting}[breaklines=true,breakatwhitespace=false,basicstyle=\ttfamily\scriptsize]
+Task 5: Error Propagation - Corrupted Cipher Text
+Key (hex): 00112233445566778899aabbccddeeff
+IV  (hex): 010203040506070809000a0b0c0d0e0f
+Plaintext: .../task5_plaintext.txt (1078 bytes)
+Corruption: flip 1 bit (mask=0x01) at byte index 54 (55th byte)
+
+  ECB | cipher: 1088 bytes | recovered: 1062/1078 (98.52%) | first error at byte 48
+  CBC | cipher: 1088 bytes | recovered: 1062/1078 (98.52%) | first error at byte 48
+  CFB | cipher: 1078 bytes | recovered: 1061/1078 (98.42%) | first error at byte 54
+  OFB | cipher: 1078 bytes | recovered: 1077/1078 (99.91%) | first error at byte 54
+\end{lstlisting}
+}
+
+\section{Reference Commands}
+
+The following OpenSSL commands were used, consistent with the SEED Lab manual (Section~7) and Task~4:
+
+\begin{lstlisting}[breaklines=true,breakatwhitespace=false,basicstyle=\ttfamily\scriptsize,frame=single]
+# Encrypt (ECB, no IV)
+openssl enc -aes-128-ecb -e -K <key_hex> -in task5_plaintext.txt -out task5_ecb.bin
+
+# Encrypt (CBC, CFB, OFB with IV)
+openssl enc -aes-128-cbc -e -K <key_hex> -iv <iv_hex> -in task5_plaintext.txt -out task5_cbc.bin
+openssl enc -aes-128-cfb -e -K <key_hex> -iv <iv_hex> -in task5_plaintext.txt -out task5_cfb.bin
+openssl enc -aes-128-ofb -e -K <key_hex> -iv <iv_hex> -in task5_plaintext.txt -out task5_ofb.bin
+
+# Decrypt corrupted ciphertext (example: CBC)
+openssl enc -aes-128-cbc -d -K <key_hex> -iv <iv_hex> -in task5_cbc_corrupted.bin -out task5_cbc_decrypted.bin
+\end{lstlisting}
+
+OpenSSL applies PKCS\#7 padding for ECB and CBC; CFB and OFB are used without padding, as documented in the SEED Lab manual \cite{seedlab_crypto_encryption}.
+
+\section{Deliverables}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Item} & \textbf{Description} \\
+\midrule
+Script & \pathinline{scripts/task5\_error\_propagation.py} --- OpenSSL-based encryption/decryption when available; PyCryptodome fallback with equivalent padding behaviour \\
+Encrypted files & \pathinline{data/task5/task5\_ecb.bin}, \pathinline{task5\_cbc.bin}, \pathinline{task5\_cfb.bin}, \pathinline{task5\_ofb.bin} \\
+Corrupted ciphertexts & \pathinline{data/task5/task5\_<mode>\_corrupted.bin} for each mode \\
+Decrypted outputs & \pathinline{data/task5/task5\_<mode>\_decrypted.bin} for each mode \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Verification was performed by inspection of the script output and byte-wise comparison of the decrypted files against the original plaintext.
